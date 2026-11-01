@@ -13,6 +13,7 @@ macOS git client for your projects, with VS Code-style split and inline diffs; a
 - **Stashes**: stash all or some files (untracked included, staged kept if asked); saved stashes with their files and diffs; pop, apply, new branch from a stash, drop (asks first).
 - Discard asks first; new files go to the Trash.
 - Live: the open repo is polled every second, so an agent's edits show up as it saves them.
+- Checks for updates on launch and from Gitdeck → Check for Updates…; installs the new release and relaunches.
 - Single user, local only: no account or sign-in.
 
 ## Stack
@@ -53,4 +54,5 @@ No server. `scripts/install.sh` installs the app locally. The Release workflow (
 - **Commit messages**: `claude -p` or `agy -p` with the staged diff (cut at 60 KB) and the last 10 subjects, run in the repo; the answer only fills the box.
 - **Links**: `gitdeck://open?path=/abs/folder` (registered in `build/darwin/Info.plist`) adds and opens that repo.
 - **State** in `~/Library/Application Support/gitdeck/state.json`: projects, the open one, diff mode, whole file, agent. Commit message drafts are kept per project in the webview's storage.
-- **Code map**: `main.go` (window, URL handling), `service.go` (methods the frontend calls, polling), `internal/git`, `internal/store`, `internal/shellenv`, `frontend/src` (UI; `frontend/bindings` is generated).
+- **Updates**: release builds carry their short commit SHA (`-X main.commit` in `build/darwin/Taskfile.yml`), which is also the release tag. `update.go` compares it with the latest release on GitHub (on launch, silent unless there is one; the menu item also says "up to date" or shows the error; dev builds skip it), downloads `gitdeck-macos.zip` to a temp folder, swaps the `.app` after the app quits and relaunches; leftover temp files are removed on the next launch. The folder holding the app must be writable.
+- **Code map**: `main.go` (window, menu, URL handling), `update.go` (update check), `service.go` (methods the frontend calls, polling), `internal/git`, `internal/store`, `internal/shellenv`, `frontend/src` (UI; `frontend/bindings` is generated).
